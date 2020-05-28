@@ -1,22 +1,9 @@
-// if you want to load the string from a TMemoField, you can do it two ways
-
-// when you have a fields added in your dataset, you can use it directly
-TMemoryStream *mstream = new TMemoryStream();
-try
-{
-	queryTexto->SaveToStream(mstream);
-	Memo1->Lines->LoadFromStream(mstream);
-}
-__finally
-{
-	delete mstream;
-}
-
+// fieldtype is TMemoField
 // if your query don't have fields added
 TStream *stream = NULL;
 try
 {
-	mstream = query->CreateBlobStream(query->FieldByName("Texto"), bmRead);
+	mstream = query->CreateBlobStream(query->FieldByName("YourTextField"), bmRead);
 	Memo1->Lines->LoadFromStream(stream);
 }
 __finally
@@ -24,3 +11,24 @@ __finally
 	if (stream != NULL)
 		delete stream;
 }
+
+// To encapsulate it and use it on all your application
+
+void __fastcall LoadStreamIntoStrings(TStrings *strings, TField *field)
+{
+	TStream *stream = NULL;
+	try
+	{
+		stream = field->DataSet->CreateBlobStream(field, bmRead);
+		strings->LoadFromStream(stream);
+	}
+	__finally
+	{
+		if (stream != NULL)
+			delete stream;
+	}
+}
+
+// And call this way
+
+LoadStreamIntoStrings(Memo1->Lines, query->FieldByName("YourTextField"));
